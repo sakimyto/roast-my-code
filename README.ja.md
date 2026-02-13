@@ -1,5 +1,8 @@
 # 🔥 roast-my-code
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Claude Code](https://img.shields.io/badge/Claude_Code-skill-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
+
 [English](README.md)
 
 **コードレビュー、されるなら面白い方がいい。**
@@ -86,29 +89,18 @@
 
 ## インストール
 
-3ステップ。npm不要。設定不要。コピーするだけ。
+### ワンライナー（推奨）
 
-### 1. クローン
+```bash
+npx skills add sakimyto/roast-my-code
+```
+
+### 手動インストール
 
 ```bash
 git clone https://github.com/sakimyto/roast-my-code.git
-```
-
-### 2. スキルをコピー
-
-**プロジェクト単位（推奨）:**
-
-```bash
 cp -r roast-my-code/roast-my-code your-project/.claude/skills/
 ```
-
-**グローバル（全プロジェクトで使用）:**
-
-```bash
-cp -r roast-my-code/roast-my-code ~/.claude/skills/
-```
-
-### 3. 焼く
 
 Claude Code でプロジェクトを開いて:
 
@@ -163,6 +155,17 @@ Claude Code でプロジェクトを開いて:
 
 条件付きチェッカー（API Design, Frontend, Git Hygiene, Dependencies）は対応するフレームワークやツールが検出された場合のみ有効化されます。
 
+### なぜ roast-my-code？
+
+| 機能 | roast-my-code | ESLint | SonarQube | CodeRabbit |
+|------|:---:|:---:|:---:|:---:|
+| エンタメ性 | ✅ | ❌ | ❌ | ❌ |
+| 具体的な修正案 | ✅ | ⚠️ | ✅ | ✅ |
+| 設定不要 | ✅ | ❌ | ❌ | ❌ |
+| バイリンガル (EN/JA) | ✅ | ❌ | ❌ | ❌ |
+| オフライン動作 | ✅ | ✅ | ❌ | ❌ |
+| APIキー不要 | ✅ | ✅ | ❌ | ❌ |
+
 ## バイリンガル対応
 
 入力言語を自動検出して出力を切り替えます:
@@ -195,6 +198,14 @@ Claude Code でプロジェクトを開いて:
 ## 仕組み
 
 roast-my-codeはマークダウンだけで構成されたClaude Codeスキルです。Claudeの組み込みツール（Read, Glob, Grep, Bash）でコードベースを分析し、結果をroast形式で出力します。`references/` 内の参照ファイルが検出パターン、重大度、roast例を定義しています。
+
+## バッジ
+
+あなたのREADMEにグレードを貼ろう:
+
+```markdown
+![roast-my-code: Grade A](https://img.shields.io/badge/roast--my--code-Grade%20A-brightgreen)
+```
 
 ## コントリビュート
 

@@ -1,5 +1,8 @@
 # 🔥 roast-my-code
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Claude Code](https://img.shields.io/badge/Claude_Code-skill-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
+
 [日本語](README.ja.md)
 
 **Code reviews that hit different. Sharp feedback meets actual fixes.**
@@ -87,31 +90,20 @@ A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill that deliv
 
 ## Installation
 
-Three steps. No npm. No config. Just copy.
+### One-liner (recommended)
 
-### 1. Clone
+```bash
+npx skills add sakimyto/roast-my-code
+```
+
+### Manual
 
 ```bash
 git clone https://github.com/sakimyto/roast-my-code.git
-```
-
-### 2. Copy the skill
-
-**Per-project (recommended):**
-
-```bash
 cp -r roast-my-code/roast-my-code your-project/.claude/skills/
 ```
 
-**Global (available in all projects):**
-
-```bash
-cp -r roast-my-code/roast-my-code ~/.claude/skills/
-```
-
-### 3. Roast
-
-In Claude Code, inside your project:
+Then, in Claude Code:
 
 ```
 /roast
@@ -164,6 +156,17 @@ That's it.
 
 Conditional checkers (API Design, Frontend, Git Hygiene, Dependencies) activate only when the relevant framework or tool is detected.
 
+### Why roast-my-code?
+
+| Feature | roast-my-code | ESLint | SonarQube | CodeRabbit |
+|---------|:---:|:---:|:---:|:---:|
+| Entertainment value | ✅ | ❌ | ❌ | ❌ |
+| Actionable fixes | ✅ | ⚠️ | ✅ | ✅ |
+| Zero config | ✅ | ❌ | ❌ | ❌ |
+| Bilingual (EN/JA) | ✅ | ❌ | ❌ | ❌ |
+| Works offline | ✅ | ✅ | ❌ | ❌ |
+| No API key | ✅ | ✅ | ❌ | ❌ |
+
 ## Bilingual Output
 
 roast-my-code automatically detects your language and adapts its output:
@@ -201,6 +204,7 @@ roast-my-code is a pure-markdown Claude Code skill. It uses Claude's built-in to
 .claude/skills/roast-my-code/
 ├── SKILL.md              # Main skill (detection + scoring + output)
 └── references/
+    ├── checks-index.md   # All 162 patterns — quick scan index
     ├── roast-style.md    # Persona definitions per level
     ├── security.md       # Security checks
     ├── architecture.md   # Architecture checks
@@ -215,6 +219,14 @@ roast-my-code is a pure-markdown Claude Code skill. It uses Claude's built-in to
     ├── api-design.md     # API design checks
     ├── frontend.md       # Frontend quality checks
     └── git-hygiene.md    # Git hygiene checks
+```
+
+## Badge
+
+Add your grade to your README:
+
+```markdown
+![roast-my-code: Grade A](https://img.shields.io/badge/roast--my--code-Grade%20A-brightgreen)
 ```
 
 ## Contributing
