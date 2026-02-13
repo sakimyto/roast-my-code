@@ -1,0 +1,291 @@
+---
+name: roast-my-code
+description: "Comprehensive code review in roast style. Analyzes security, architecture, complexity, TDD compliance, type safety, error handling, naming, dead code, performance, dependencies, API design, frontend quality, and git hygiene. Delivers findings as entertaining roasts with actionable fixes. Use /roast to review your codebase. Supports --level (gentle/spicy/savage/sensei)."
+user-invocable: true
+argument-hint: "[target-path] [--level=gentle|spicy|savage|sensei]"
+allowed-tools: Read, Glob, Grep, Bash
+---
+
+# roast-my-code
+
+Roast the target codebase with devastating accuracy and actionable fixes.
+
+## Usage
+
+```
+/roast                              # Review cwd at spicy level
+/roast src/                         # Review src/ directory
+/roast --level=savage               # Maximum roast intensity
+/roast src/ --level=sensei          # TDD-focused wisdom
+```
+
+## Levels
+
+| Level | Tone | Best For |
+|-------|------|----------|
+| gentle | Friendly mentor | Juniors, OSS contributors |
+| **spicy** | Sarcastic reviewer (default) | Daily use, team reviews |
+| savage | Brutally honest senior | Content, self-roasts |
+| sensei | TDD master (t_wada style) | TDD adoption, testing culture |
+
+## Instructions
+
+Follow these steps precisely. Do NOT skip any step.
+
+### Step 1: Parse Arguments
+
+Parse the user's input to extract:
+
+- `TARGET_PATH`: directory or file to review (default: current working directory)
+- `LEVEL`: one of gentle/spicy/savage/sensei (default: spicy)
+
+If `--level=` is found anywhere in the argument string, extract its value.
+Everything else is treated as the target path.
+
+### Step 2: Project Detection
+
+Analyze the target to detect the project type. Run these checks:
+
+```
+Glob: TARGET_PATH/**/package.json
+Glob: TARGET_PATH/**/tsconfig.json
+Glob: TARGET_PATH/**/Cargo.toml
+Glob: TARGET_PATH/**/go.mod
+Glob: TARGET_PATH/**/requirements.txt
+Glob: TARGET_PATH/**/pyproject.toml
+Glob: TARGET_PATH/**/*.sln
+Glob: TARGET_PATH/.git
+```
+
+Read the first `package.json` found (if any) and extract:
+
+- `dependencies` and `devDependencies` keys
+- `scripts` keys
+- `engines` field
+
+Detect frameworks by checking dependency names:
+
+- **HTTP frameworks:** express, hono, fastify, koa, @nestjs/core
+- **Frontend frameworks:** react, vue, svelte, @angular/core, next, nuxt
+- **Test frameworks:** jest, vitest, mocha, @testing-library/*
+- **Language:** presence of tsconfig.json = TypeScript
+
+Store results as:
+
+- `LANG`: typescript | javascript | rust | go | python | csharp | unknown
+- `HAS_TESTS`: boolean
+- `HAS_HTTP_FRAMEWORK`: boolean
+- `HAS_FRONTEND_FRAMEWORK`: boolean
+- `HAS_GIT`: boolean
+- `HAS_PACKAGE_MANIFEST`: boolean
+
+### Step 3: Checker Activation
+
+Determine which checkers to run based on detection results:
+
+| Checker | Reference File | Condition |
+|---------|---------------|-----------|
+| Security | `references/security.md` | Always |
+| Architecture | `references/architecture.md` | Always |
+| Complexity | `references/complexity.md` | Always |
+| TDD | `references/tdd.md` | Always |
+| Type Safety | `references/type-safety.md` | LANG = typescript |
+| Error Handling | `references/error-handling.md` | Always |
+| Naming | `references/naming.md` | Always |
+| Dead Code | `references/dead-code.md` | Always |
+| Performance | `references/performance.md` | Always |
+| Dependencies | `references/dependencies.md` | HAS_PACKAGE_MANIFEST |
+| API Design | `references/api-design.md` | HAS_HTTP_FRAMEWORK |
+| Frontend | `references/frontend.md` | HAS_FRONTEND_FRAMEWORK |
+| Git Hygiene | `references/git-hygiene.md` | HAS_GIT |
+
+Also read `references/roast-style.md` to load the persona for the selected LEVEL.
+
+### Step 4: Execute Each Checker
+
+For each active checker:
+
+1. Read the checker's reference file from the `references/` directory.
+2. For each check item in the file, use the detection method described:
+   - Use **Grep** to search for patterns in source files.
+   - Use **Glob** to find files matching patterns.
+   - Use **Bash** for line counts, git log analysis, or file size checks.
+3. Record each finding with:
+   - `category`: checker name
+   - `check`: check item name
+   - `severity`: critical / error / warning / info
+   - `location`: file path and line number(s)
+   - `evidence`: the actual code/pattern found
+   - `deduction`: point deduction value
+
+**Important rules:**
+
+- Only report findings backed by actual evidence found in the code.
+- Do NOT invent findings for entertainment. Every roast must be grounded in fact.
+- Sample up to 20 files per checker to keep analysis tractable.
+- For large projects, prioritize: src/ > lib/ > app/ > other directories.
+- Skip node_modules/, dist/, build/, .next/, vendor/, target/ directories.
+
+### Step 5: Calculate Scores
+
+For each active checker category:
+
+1. Start at **100 points**.
+2. Apply deductions for each finding:
+   - `critical`: **-20** points
+   - `error`: **-10** points
+   - `warning`: **-4** points
+   - `info`: **-1** point
+3. Floor at **0** (no negative scores).
+4. Apply category weight:
+   - Security: **1.5x**
+   - Architecture: **1.2x**
+   - TDD: **1.0x** (but **1.5x** in sensei mode)
+   - All others: **1.0x**
+
+Calculate the **Overall Score**:
+
+- Weighted average of all active checker scores.
+- `overall = sum(score_i * weight_i) / sum(weight_i)`
+
+Determine the **Grade**:
+
+| Grade | Score Range | Label |
+|-------|-----------|-------|
+| S | 90 - 100 | Immaculate |
+| A | 80 - 89 | Solid |
+| B | 70 - 79 | Decent |
+| C | 60 - 69 | Needs Work |
+| D | 40 - 59 | Rough |
+| F | 0 - 39 | Dumpster Fire |
+
+### Step 6: Generate Output
+
+Compose the final output using the Output Format below.
+Apply the roast persona from roast-style.md for the selected LEVEL.
+
+**Rules:**
+
+- Every finding gets a roast line AND a concrete fix.
+- Group findings by category.
+- Show the most critical findings first within each category.
+- Keep total output under 300 lines. If more findings exist, show top 5 per
+  category and note how many were omitted.
+- Lines should be under 80 characters where possible for screenshot-friendliness.
+
+---
+
+## Output Format
+
+Generate output in EXACTLY this structure:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  🔥 ROAST MY CODE — REPORT CARD 🔥
+  Level: {LEVEL} | Target: {TARGET_PATH}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 OVERALL: {GRADE} ({SCORE}/100)
+
+┌─────────────────────────────────────┐
+│ Category          Score    Grade    │
+├─────────────────────────────────────┤
+│ Security          {xx}/100   {G}   │
+│ Architecture      {xx}/100   {G}   │
+│ Complexity        {xx}/100   {G}   │
+│ TDD               {xx}/100   {G}   │
+│ Type Safety       {xx}/100   {G}   │
+│ Error Handling    {xx}/100   {G}   │
+│ Naming            {xx}/100   {G}   │
+│ Dead Code         {xx}/100   {G}   │
+│ Performance       {xx}/100   {G}   │
+│ Dependencies      {xx}/100   {G}   │
+│ API Design        {xx}/100   {G}   │
+│ Frontend          {xx}/100   {G}   │
+│ Git Hygiene       {xx}/100   {G}   │
+└─────────────────────────────────────┘
+(Only show rows for active checkers)
+
+━━━ 🔥 FINDINGS ━━━━━━━━━━━━━━━━━━━━━━
+
+## {CATEGORY} ({SCORE}/100)
+
+### 🚨 {CHECK_NAME} [{SEVERITY}]
+📍 {file_path}:{line}
+> {code evidence or description}
+
+💬 "{ROAST_LINE}"
+
+🔧 Fix: {actionable fix description}
+
+---
+
+(Repeat for each finding, grouped by category)
+
+━━━ 📋 SUMMARY ━━━━━━━━━━━━━━━━━━━━━━━
+
+🏆 Top 3 Strengths:
+  1. {strength}
+  2. {strength}
+  3. {strength}
+
+💀 Top 3 Priorities to Fix:
+  1. {priority with file reference}
+  2. {priority with file reference}
+  3. {priority with file reference}
+
+📈 Quick Wins (< 5 min each):
+  - {quick fix 1}
+  - {quick fix 2}
+  - {quick fix 3}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Roasted with ❤️ by roast-my-code
+  ⭐ github.com/sakimyto/roast-my-code
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### Output Rules
+
+1. **Scorecard table** always appears first.
+2. **Findings** are grouped by category, ordered by score
+   (worst category first).
+3. Within each category, findings are ordered: critical > error >
+   warning > info.
+4. **Summary** always appears last.
+5. If a category scored 100 (no findings), show it in the table
+   but skip the findings section for it. Add it to Strengths.
+6. The roast line MUST match the selected LEVEL's tone from
+   roast-style.md.
+7. Every roast MUST be paired with a Fix.
+8. Use box-drawing characters for the table exactly as shown.
+9. If the overall grade is S, add a congratulatory roast:
+   "I came here to roast, but your code left me speechless.
+   Well played."
+
+---
+
+## Scoring Quick Reference
+
+| Severity | Deduction | Examples |
+|----------|-----------|---------|
+| critical | -20 | Hardcoded secrets, SQL injection, no tests |
+| error | -10 | Empty catch, God files, `any` abuse |
+| warning | -4 | console.log, TODO comments, inline styles |
+| info | -1 | Missing engine field, no readonly |
+
+| Weight | Category | Multiplier |
+|--------|----------|-----------|
+| High | Security | 1.5x |
+| Medium | Architecture | 1.2x |
+| Elevated | TDD (sensei mode only) | 1.5x |
+| Normal | All others | 1.0x |
+
+| Grade | Range | Vibe |
+|-------|-------|------|
+| S | 90-100 | Ship it yesterday |
+| A | 80-89 | Production-ready |
+| B | 70-79 | Code review approved |
+| C | 60-69 | Needs another pass |
+| D | 40-59 | Intern's first week? |
+| F | 0-39 | Call the fire department |
