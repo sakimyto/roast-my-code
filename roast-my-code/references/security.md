@@ -195,6 +195,15 @@ Always active.
   - **Roast (ja):** "ユーザー入力を`eval()`に渡してるの、それって攻撃者にサーバーのシェルをプレゼントしてるのと同じですよね。なんだろう、`eval`使うのやめてもらっていいですか。"
 - **Fix:** Never use `eval()` or `new Function()` with user input. Use `JSON.parse()` with schema validation (Zod, Joi, ajv). For YAML, use safe load options. Consider a sandboxed environment if dynamic code execution is truly needed.
 
+### Missing CSRF Protection
+
+- **Severity:** error
+- **Detect:** Check for state-changing endpoints (POST/PUT/DELETE handlers) without CSRF token validation. Grep for form submissions (`<form method="POST"`) without a CSRF token field. Check for missing CSRF middleware: no `csurf`, `csrf-csrf`, `@fastify/csrf-protection`, or framework-native CSRF config. Also flag state-changing GET routes (`app.get` that performs writes/deletes) — GET should be idempotent.
+- **Deduction:** -10 points
+- **Roast (en):** "No CSRF protection. Any website can make your logged-in users unknowingly transfer funds, delete accounts, or change passwords — all with one invisible form. That's not a feature gap, it's an open invitation."
+  - **Roast (ja):** "CSRF対策ないんですけど、他のサイトからログイン中のユーザーに送金させたりアカウント削除させたりできちゃいますよね。なんだろう、CSRFトークンっていう基本的なもの、実装してもらっていいですか。"
+- **Fix:** Add CSRF middleware (`csurf` for Express, `@fastify/csrf-protection` for Fastify, built-in for Next.js/Remix). Include CSRF tokens in all forms and AJAX requests. Use `SameSite=Strict` cookies as an additional layer. Never use GET for state-changing operations.
+
 ## Scoring
 
 Start at 100. Apply deductions per finding. Minimum 0. Multiply final score by weight 1.5x.
