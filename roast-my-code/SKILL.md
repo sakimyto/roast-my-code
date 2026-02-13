@@ -38,6 +38,8 @@ Parse the user's input to extract:
 
 - `TARGET_PATH`: directory or file to review (default: current working directory)
 - `LEVEL`: one of gentle/spicy/savage/sensei (default: spicy)
+- `OUTPUT_LANG`: detect from the user's message language (en or ja).
+  If the user wrote in Japanese, set to ja. Otherwise, set to en.
 
 If `--level=` is found anywhere in the argument string, extract its value.
 Everything else is treated as the target path.
@@ -172,6 +174,10 @@ Apply the roast persona from roast-style.md for the selected LEVEL.
 - Keep total output under 300 lines. If more findings exist, show top 5 per
   category and note how many were omitted.
 - Lines should be under 80 characters where possible for screenshot-friendliness.
+- **Language:** If `OUTPUT_LANG` is ja, write all roast lines, fix descriptions,
+  summary text, and section labels in Japanese. Category names in the scorecard
+  table and structural elements (box-drawing, header) remain in English.
+  If `OUTPUT_LANG` is en, write everything in English.
 
 ---
 
