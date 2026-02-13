@@ -33,15 +33,6 @@ Always active.
   - **Roast (ja):** "エラーメッセージが'something went wrong'って、病院行って『どこか悪いです』って言うのと同じですよね。もうちょっと情報ください。"
 - **Fix:** Include specific context in error messages: what operation failed, what input caused it, and what the user or developer can do about it. Example: `new Error('Failed to parse config file at /etc/app/config.json: invalid JSON at line 42')`. Good error messages are documentation for your future self.
 
-### No Error Boundaries
-
-- **Severity:** error
-- **Detect:** Identify React projects by checking for `react` or `react-dom` in `package.json` dependencies. Search for `ErrorBoundary`, `componentDidCatch`, `getDerivedStateFromError`, or error boundary libraries like `react-error-boundary`. If none are found in a React project with multiple component files, flag it.
-- **Deduction:** -10 points
-- **Roast (en):** "A React app with no error boundaries. One bad render and your entire UI disintegrates like Thanos snapped your component tree."
-  - **Roast (ja):** "Error Boundaryが一個もないReactアプリって、1コンポーネントのエラーでUI全体が吹き飛ぶんですけど、それって地雷原でダンスしてるのと同じですよね。"
-- **Fix:** Wrap major UI sections with `<ErrorBoundary>` components. Use `react-error-boundary` for a battle-tested implementation with reset capabilities. At minimum, wrap the top-level `<App>` component. Provide user-friendly fallback UIs that offer recovery actions like "Try again" or "Go back to home."
-
 ### Unhandled Promise Rejections
 
 - **Severity:** error
@@ -110,7 +101,7 @@ Always active.
 When multiple error handling issues are found, report them in this order:
 
 1. **Critical** -- Empty Catch Blocks (silent failure is the worst kind of failure)
-2. **Error** -- Unhandled Promise Rejections, No Error Boundaries, Swallowed Errors in Callbacks
+2. **Error** -- Unhandled Promise Rejections, Swallowed Errors in Callbacks
 3. **Warning** -- Catch-and-Log-Only, Generic Error Messages, String Throws, Inconsistent Error Types, No Global Error Handler, Error Logging Without Context
 4. **Info** -- Missing Finally Blocks
 
@@ -125,7 +116,7 @@ When multiple error handling issues are found, report them in this order:
 
 - Empty Catch Blocks + Swallowed Errors often appear together -- count both deductions separately.
 - Generic Error Messages + Error Logging Without Context compound to make debugging nearly impossible -- call this out explicitly in the roast as a "double whammy."
-- No Error Boundaries is only applicable to React projects -- skip for non-React codebases entirely.
+- Error Boundaries are checked in `frontend.md` (not here) to avoid duplicate deductions.
 - No Global Error Handler check should adapt to the runtime: Node.js, browser, Deno, Bun each have different APIs for global error capture.
 - Catch-and-Log-Only is a subset of poor error handling -- if the catch block also has a generic message, apply both deductions.
 - String Throws and Inconsistent Error Types often co-occur -- if string throws are found, also check whether the project mixes error styles.

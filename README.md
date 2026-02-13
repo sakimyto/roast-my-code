@@ -1,6 +1,6 @@
 # 🔥 roast-my-code
 
-**Your code is bad and you should feel entertained about it.**
+**Code reviews that hit different. Sharp feedback meets actual fixes.**
 
 A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill that delivers brutally honest code reviews as entertaining roasts — with actionable fixes. No API keys. No dependencies. Just markdown.
 
@@ -73,8 +73,16 @@ git clone https://github.com/sakimyto/roast-my-code.git
 
 ### 2. Copy the skill
 
+**Per-project (recommended):**
+
 ```bash
-cp -r roast-my-code/roast-my-code /path/to/your/project/.claude/skills/
+cp -r roast-my-code/roast-my-code your-project/.claude/skills/
+```
+
+**Global (available in all projects):**
+
+```bash
+cp -r roast-my-code/roast-my-code ~/.claude/skills/
 ```
 
 ### 3. Roast

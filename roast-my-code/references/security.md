@@ -83,8 +83,8 @@ Always active.
 - **Severity:** warning
 - **Detect:** Grep for `http://` URLs in production config files, environment templates, and API base URL definitions. Pattern: `http://` in files matching `*config*`, `*env*`, `*.yaml`, `*.yml`, `*.toml`, `*.properties`. Exclude `http://localhost`, `http://127.0.0.1`, `http://0.0.0.0`, and comments.
 - **Deduction:** -4 points
-- **Roast (en):** "HTTP in production in {current_year}. You're sending data in a clear plastic bag and wondering why people can read it. Let's Encrypt is free -- like, actually free."
-  - **Roast (ja):** "{current_year}年にHTTPで本番運用してるの、それって葉書に暗証番号書いて郵送してるのと同じですよね。Let's Encryptは無料なんですけど、知ってました？"
+- **Roast (en):** "HTTP in production in this day and age. You're sending data in a clear plastic bag and wondering why people can read it. Let's Encrypt is free -- like, actually free."
+  - **Roast (ja):** "いまどきHTTPで本番運用してるの、それって葉書に暗証番号書いて郵送してるのと同じですよね。Let's Encryptは無料なんですけど、知ってました？"
 - **Fix:** Enforce HTTPS everywhere. Use TLS certificates from Let's Encrypt (free) or your cloud provider. Set up HTTP-to-HTTPS redirects. Add HSTS headers. Update all hardcoded URLs to use `https://`.
 
 ### Permissive CORS

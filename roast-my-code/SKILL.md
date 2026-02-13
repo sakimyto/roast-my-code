@@ -59,7 +59,9 @@ Glob: TARGET_PATH/**/*.sln
 Glob: TARGET_PATH/.git
 ```
 
-Read the first `package.json` found (if any) and extract:
+Read the **root-level** `package.json` (at `TARGET_PATH/package.json`) first.
+If none exists, fall back to the nearest `package.json` to TARGET_PATH.
+Extract:
 
 - `dependencies` and `devDependencies` keys
 - `scripts` keys
@@ -91,7 +93,7 @@ Determine which checkers to run based on detection results:
 | Architecture | `references/architecture.md` | Always |
 | Complexity | `references/complexity.md` | Always |
 | TDD | `references/tdd.md` | Always |
-| Type Safety | `references/type-safety.md` | LANG = typescript |
+| Type Safety | `references/type-safety.md` | LANG = typescript OR .ts/.tsx files found |
 | Error Handling | `references/error-handling.md` | Always |
 | Naming | `references/naming.md` | Always |
 | Dead Code | `references/dead-code.md` | Always |
@@ -124,6 +126,10 @@ For each active checker:
 
 - Only report findings backed by actual evidence found in the code.
 - Do NOT invent findings for entertainment. Every roast must be grounded in fact.
+- **Deduplication:** If the same issue appears in multiple checkers (e.g.,
+  CORS in Security and API Design, Error Boundaries in Error Handling and
+  Frontend), count the deduction in only ONE category — whichever is more
+  specific. Note the cross-reference in the other category without deducting.
 - Sample up to 20 files per checker to keep analysis tractable.
 - For large projects, prioritize: src/ > lib/ > app/ > other directories.
 - Skip node_modules/, dist/, build/, .next/, vendor/, target/ directories.
@@ -138,17 +144,19 @@ For each active checker category:
    - `error`: **-10** points
    - `warning`: **-4** points
    - `info`: **-1** point
-3. Floor at **0** (no negative scores).
-4. Apply category weight:
-   - Security: **1.5x**
-   - Architecture: **1.2x**
-   - TDD: **1.0x** (but **1.5x** in sensei mode)
-   - All others: **1.0x**
+3. **Per-check cap:** Max **3 findings** per check type count toward the
+   score. Additional instances are reported but do not deduct further points.
+4. Floor at **0** (no negative scores).
+5. The category score displayed in the table is always out of **100**
+   (do NOT multiply by weight here).
 
-Calculate the **Overall Score**:
+Calculate the **Overall Score** using category weights:
 
-- Weighted average of all active checker scores.
+- Weights: Security **1.5x**, Architecture **1.2x**,
+  TDD **1.5x** in sensei mode (1.0x otherwise), all others **1.0x**.
 - `overall = sum(score_i * weight_i) / sum(weight_i)`
+- Weights are used ONLY in this overall calculation, not on individual
+  category scores.
 
 Determine the **Grade**:
 
@@ -183,7 +191,7 @@ Apply the roast persona from roast-style.md for the selected LEVEL.
 
 ## Output Format
 
-Generate output in EXACTLY this structure:
+Generate output following this structure (adapt rows to active checkers):
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -280,12 +288,16 @@ Generate output in EXACTLY this structure:
 | warning | -4 | console.log, TODO comments, inline styles |
 | info | -1 | Missing engine field, no readonly |
 
-| Weight | Category | Multiplier |
-|--------|----------|-----------|
-| High | Security | 1.5x |
-| Medium | Architecture | 1.2x |
-| Elevated | TDD (sensei mode only) | 1.5x |
-| Normal | All others | 1.0x |
+| Weight | Category | Multiplier | Note |
+|--------|----------|-----------|------|
+| High | Security | 1.5x | Always |
+| Medium | Architecture | 1.2x | Always |
+| Elevated | TDD | 1.5x | sensei mode only (1.0x otherwise) |
+| Normal | All others | 1.0x | |
+
+**Note:** Weights apply ONLY to the overall weighted average, not to
+individual category scores (which are always displayed out of 100).
+Per-check cap: max 3 findings per check type count toward the score.
 
 | Grade | Range | Vibe |
 |-------|-------|------|

@@ -7,6 +7,8 @@ Reference file for dependency-related code roasts.
 Active when the project contains a package manifest file:
 `package.json`, `requirements.txt`, `Cargo.toml`, `go.mod`, `pyproject.toml`, `Gemfile`, or similar.
 
+**Note:** Most checks below are Node.js/npm-specific (lockfile names, devDependencies, engines field, scripts). For non-Node projects, only apply checks that match the ecosystem (e.g., No Lockfile, Wildcard Versions, Excessive Dependencies are universal).
+
 ---
 
 ## Checks

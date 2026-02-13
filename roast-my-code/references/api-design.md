@@ -90,7 +90,7 @@ Conditional: Active only when Express, Hono, Fastify, Koa, NestJS, or similar HT
 ### Missing CORS Configuration
 
 - **Severity:** warning
-- **Detect:** Grep for CORS middleware or headers: `cors()`, `@nestjs/platform-express` CORS config, `Access-Control-Allow-Origin`, `enableCors()`, `hono/cors`. Check if public-facing API routes lack any CORS configuration. Only flag for APIs intended to be consumed by browser clients (presence of frontend build, SPA references, or explicit public API documentation).
+- **Detect:** Grep for CORS middleware or headers: `cors()`, `@nestjs/platform-express` CORS config, `Access-Control-Allow-Origin`, `enableCors()`, `hono/cors`. Check if public-facing API routes lack any CORS configuration. Only flag for APIs intended to be consumed by browser clients (presence of frontend build, SPA references, or explicit public API documentation). **Note:** If `security.md` already flagged "Permissive CORS" for this project, skip this check to avoid double deduction.
 - **Deduction:** -4 points
 - **Roast (en):** "No CORS config on a public API. Browser clients are getting rejected at the door while you wonder why `fetch` keeps failing."
   - **Roast (ja):** "公開APIなのにCORS設定なしって、お客さんを入口で追い返しておいて『なんで誰も来ないんだろう』って言ってるのと同じですよね。"
