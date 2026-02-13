@@ -141,6 +141,15 @@ Always active.
   - **Roast (ja):** "ソースツリーに4MBのPNGがあるんですけど、それってモバイルユーザーのギガを人質に取ってるのと同じですよね。WebPって聞いたことないですかね。"
 - **Fix:** Compress images with `sharp`, `imagemin`, or Squoosh. Use WebP/AVIF formats with fallbacks. Implement responsive images with `srcset`. Lazy-load below-the-fold images. Set explicit `width`/`height` to prevent layout shift.
 
+### Callback Hell
+
+- **Severity:** warning
+- **Detect:** Grep for nested `.then()` chains (3+ levels). Patterns: `\.then\(.*\n.*\.then\(.*\n.*\.then\(` or nested callbacks `function.*\{[^}]*function.*\{[^}]*function`. Also flag deeply nested `(err, data) =>` patterns typical of legacy Node.js callback APIs.
+- **Deduction:** -4 points
+- **Roast (en):** "Nested `.then().then().then()` — the promise pyramid of doom. `async/await` has been stable since 2017. That's not legacy — that's a lifestyle choice."
+  - **Roast (ja):** "`.then().then().then()`のネスト、約束のピラミッドですよね。`async/await`は2017年から使えるんですけど、あえて使わない理由あるんですかね。"
+- **Fix:** Convert to `async/await`. Replace `.then()` chains with `const result = await asyncFn()`. Use `try/catch` for error handling. Combine parallel operations with `Promise.all()`.
+
 ## Scoring
 
 Start at 100. Apply deductions per finding. Minimum 0. Multiply final score by weight 1.0x.

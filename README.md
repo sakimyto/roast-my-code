@@ -142,7 +142,7 @@ That's it.
 
 ## What It Checks
 
-13 categories, 140+ individual check items:
+13 categories, 160+ individual check items:
 
 | Category | Checks | Weight |
 |----------|--------|--------|

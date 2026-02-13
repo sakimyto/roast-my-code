@@ -105,6 +105,15 @@ Always active.
   - **Roast (ja):** "それって`a.b.c.d.e.f`ですよね。プロパティアクセスじゃなくて地下探査ですよそれ。途中でundefined踏んだら全部爆発しますけど、大丈夫ですか？"
 - **Fix:** Use destructuring, intermediate variables, or optional chaining with early extraction to flatten access depth.
 
+### Missing Guard Clauses
+
+- **Severity:** warning
+- **Detect:** Look for deeply nested if/else chains (3+ levels) where early returns could flatten the structure. Grep for `if\s*\(` appearing at indentation level 3+ inside a function body. Also flag functions that wrap the entire body in a single `if (condition) { ...100 lines... }` instead of returning early for the negative case.
+- **Deduction:** -4 points
+- **Roast (en):** "Three levels of nested `if` just to reach the happy path. Flip the conditions, return early, and let your code breathe. Your indentation is giving 'pyramid scheme.'"
+  - **Roast (ja):** "if文3段ネストしてやっと正常系にたどり着くの、条件反転して早期リターンしてもらっていいですか。このインデント、ピラミッドスキームって言うんですよ。"
+- **Fix:** Use guard clauses — check for invalid conditions first and return early. Transform `if (valid) { ...body... }` into `if (!valid) return; ...body...`. Each early return reduces nesting by one level.
+
 ## Scoring
 
 Start at 100. Apply deductions per finding. Minimum score is 0. Weight: 1.0x.

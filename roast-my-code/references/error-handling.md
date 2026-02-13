@@ -96,13 +96,22 @@ Always active.
   - **Roast (ja):** "エラーログに`console.error(e)`だけって、110番して『事件です』とだけ言って切るのと同じですよね。いつ、どこで、何が起きたか言ってもらっていいですか。"
 - **Fix:** Always include context when logging errors: operation name, relevant IDs (request, user, transaction), input parameters that triggered the failure, and the full stack trace. Use structured logging: `logger.error({ err, requestId, userId, operation: 'processPayment', input: { orderId } })`. Never strip the stack trace by logging only `e.message`.
 
+### No Fail-Fast Validation
+
+- **Severity:** warning
+- **Detect:** Look for functions that perform operations before validating inputs. Check for API handlers without early input validation — no Zod/Joi/yup schema at the handler entry point. Flag functions where parameter checks (null checks, type checks, bounds checks) appear deep inside the body (20+ lines in) rather than at the top.
+- **Deduction:** -4 points
+- **Roast (en):** "Your function processes 40 lines of logic before checking if the input is valid. Fail fast — validate at the door, not after the party has started."
+  - **Roast (ja):** "入力チェックの前に40行もロジック走らせてるの、無効なデータで途中まで処理進めてから『やっぱダメでした』って無駄ですよね。入口でバリデーションしてもらっていいですか。"
+- **Fix:** Validate inputs at the entry point of every function. Use guard clauses for required parameters. Add schema validation (Zod, Joi) at API boundaries. The first lines of a function should be validation, not business logic.
+
 ## Priority Order
 
 When multiple error handling issues are found, report them in this order:
 
 1. **Critical** -- Empty Catch Blocks (silent failure is the worst kind of failure)
 2. **Error** -- Unhandled Promise Rejections, Swallowed Errors in Callbacks
-3. **Warning** -- Catch-and-Log-Only, Generic Error Messages, String Throws, Inconsistent Error Types, No Global Error Handler, Error Logging Without Context
+3. **Warning** -- Catch-and-Log-Only, Generic Error Messages, String Throws, Inconsistent Error Types, No Global Error Handler, Error Logging Without Context, No Fail-Fast Validation
 4. **Info** -- Missing Finally Blocks
 
 ## Language-Specific Detection Notes

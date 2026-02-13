@@ -110,6 +110,42 @@ Scan project structure, import graphs, and module boundaries to find architectur
   - **Roast (ja):** "API URLが7ファイルにハードコードされてるんですけど、本番で変更するときモグラ叩きになりますよね。環境変数って概念、ご存知ですか。"
 - **Fix:** Centralize configuration. Use environment variables, a config module, or a .env file. One source of truth, referenced everywhere.
 
+### DRY Violations
+
+- **Severity:** warning
+- **Detect:** Look for duplicated code blocks across files. Search for identical or near-identical multi-line patterns (5+ lines) appearing in 2+ files. Also flag copy-pasted configuration blocks and duplicated validation logic. Use Grep to spot repeated function signatures with similar bodies.
+- **Deduction:** -4 points
+- **Roast (en):** "I found the same 15-line function in three different files. That's not reuse — that's a copy-paste family reunion. When you fix a bug, you'll fix it in one place and forget the other two."
+  - **Roast (ja):** "同じ15行の関数が3ファイルにあるんですけど、それって再利用じゃなくてコピペの親戚集会ですよね。バグ直すとき1箇所だけ直して残り2箇所忘れるやつですよ。"
+- **Fix:** Extract duplicated logic into shared utility functions or modules. Follow the Rule of Three — if you've copied it twice, it's time to abstract. Parameterize the differences.
+
+### Law of Demeter Violations
+
+- **Severity:** warning
+- **Detect:** Use Grep for property access chains with 4+ dots. Pattern: `\w+(\.\w+){4,}`. Exclude import paths, package namespaces, and chained method calls on builder/fluent APIs (e.g., query builders, test matchers).
+- **Deduction:** -4 points
+- **Roast (en):** "`user.address.city.district.name` — you're not accessing data, you're on an archaeological expedition. One refactor to `address` and this entire chain turns to dust."
+  - **Roast (ja):** "`user.address.city.district.name`って、データアクセスじゃなくて考古学の発掘調査ですよね。途中の構造変えた瞬間、このチェーン全部壊れますけど。"
+- **Fix:** Follow the Law of Demeter — only talk to your immediate friends. Use intermediate variables, destructuring, or delegate methods. If `user.getDistrictName()` exists, call that instead of drilling.
+
+### Side Effects in Constructors
+
+- **Severity:** warning
+- **Detect:** Grep for I/O, API calls, or async operations inside constructors. Patterns: `constructor\(` blocks containing `fetch`, `axios`, `http`, `fs\.`, `readFile`, `writeFile`, `database`, `query`, `.save(`, `.create(`, `addEventListener`, `setInterval`, `setTimeout`.
+- **Deduction:** -4 points
+- **Roast (en):** "Your constructor makes API calls. `new User()` shouldn't need a network connection. Constructors initialize — they don't launch side quests."
+  - **Roast (ja):** "コンストラクタでAPI呼んでるの、`new User()`するのにネットワーク接続が必要っておかしいですよね。コンストラクタは初期化する場所であって冒険に出る場所じゃないんですよ。"
+- **Fix:** Keep constructors pure — assign parameters to properties only. Use static factory methods (`User.create()`) or builder patterns for async initialization. Separate object creation from I/O.
+
+### Dependency Inversion Violations
+
+- **Severity:** info
+- **Detect:** Check for direct imports of infrastructure in business logic. Grep for `import.*from '.*/database'`, `import.*from '.*/infrastructure'`, `import.*from '.*/adapters'` in domain/business logic directories. Flag when core logic directly imports database drivers, HTTP clients, or external service SDKs.
+- **Deduction:** -1 point
+- **Roast (en):** "Your business logic imports the database driver directly. Swap PostgreSQL for MySQL and watch 47 files burn. That's not architecture — it's a hostage situation."
+  - **Roast (ja):** "ビジネスロジックがDBドライバを直接importしてるの、PostgreSQLからMySQL変えるだけで47ファイル書き直しですよね。それアーキテクチャじゃなくて人質事件ですよ。"
+- **Fix:** Depend on abstractions (interfaces/types), not concretions. Define repository interfaces in the domain layer. Inject implementations via dependency injection or factory functions. Business logic should never know about infrastructure.
+
 ---
 
 ## Scoring

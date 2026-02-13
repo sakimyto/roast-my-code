@@ -142,6 +142,15 @@ Active when TypeScript files (`*.ts`, `*.tsx`) are detected, or when JSDoc type 
 - **Fix:** Add `extends` constraints: `<T extends Record<string, unknown>>`,
   `<T extends BaseEntity>`, or `<T extends { id: string }>`. Documents intent and catches misuse.
 
+### Null/Undefined Overuse
+
+- **Severity:** warning
+- **Detect:** Grep for excessive optional chaining (3+ `?.` in one expression). Pattern: `(\?\.\w+){3,}`. Also flag functions with multiple `return null` or `return undefined` statements — more than 3 per file suggests systematic null-threading instead of proper type narrowing.
+- **Deduction:** -4 points
+- **Roast (en):** "`user?.profile?.settings?.theme?.color` — five question marks in one line. Your code is as uncertain about its own data as I am about its quality."
+  - **Roast (ja):** "`user?.profile?.settings?.theme?.color`って、1行に`?`が5つもあるんですけど。コード自体が自分のデータに自信ないんですよね。型をちゃんと定義してもらっていいですか。"
+- **Fix:** Define proper types so optional chaining isn't needed everywhere. Use discriminated unions or the Null Object pattern. Handle absence explicitly at the boundary rather than threading uncertainty through the entire call chain.
+
 ## Scoring
 
 Start at 100. Apply deductions per finding. Minimum score is 0. Weight: 1.0x.

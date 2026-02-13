@@ -114,6 +114,87 @@ Always active.
   - **Roast (ja):** "`.env`ファイルをgitにコミットしてますよね。gitって全部履歴に残るの知ってます？ シークレット全部ローテーションする作業、深夜2時にやることになりますけど大丈夫ですか。"
 - **Fix:** Add `.env*` to `.gitignore` immediately. Remove tracked `.env` files with `git rm --cached .env`. Rotate ALL secrets that were ever committed (they are in git history even after removal). Use `git-secrets` or `pre-commit` hooks to prevent future commits of secret files. Consider using `BFG Repo-Cleaner` to purge history.
 
+### SSRF (Server-Side Request Forgery)
+
+- **Severity:** critical
+- **Detect:** Grep for HTTP client calls where the URL argument derives from user input. Patterns: `fetch\(.*req\.(query|params|body)`, `axios\.(get|post)\(.*req\.`, `http\.get\(.*req\.`, `got\(.*req\.`. Also flag any HTTP client call where the URL is a function parameter without allowlist validation.
+- **Deduction:** -20 points
+- **Roast (en):** "You're passing user input directly into `fetch()`. Congrats, your server is now a proxy for attacking your own internal network. That's SSRF — giving strangers your house keys and hoping they only use the front door."
+  - **Roast (ja):** "ユーザー入力をそのまま`fetch()`に渡してるの、それってサーバーを踏み台にして内部ネットワーク攻撃できちゃうんですけど。SSRFって知ってます？ 知らないなら今すぐ検索してもらっていいですか。"
+- **Fix:** Validate and allowlist URLs before making server-side requests. Block requests to private IP ranges (10.x, 172.16-31.x, 192.168.x, 127.x, 169.254.x). Use a dedicated HTTP client with SSRF protections.
+
+### JWT Vulnerabilities
+
+- **Severity:** error
+- **Detect:** Grep for `jwt.sign` without `expiresIn` option, `jwt.verify` without `algorithms` option, `localStorage.setItem` containing `token`/`jwt`/`auth`, and `jwt.decode` used where `jwt.verify` should be. Patterns: `jwt\.sign\(` without `expiresIn`, `localStorage\.setItem.*token`, `jwt\.decode`.
+- **Deduction:** -10 points
+- **Roast (en):** "Your JWT never expires. That token is immortal — if it leaks, the attacker has access until the heat death of the universe. Also, storing it in localStorage is XSS candy."
+  - **Roast (ja):** "JWTに有効期限ないんですけど、それって一回漏洩したら宇宙の終わりまでアクセスされ放題ってことですよね。あとlocalStorageに保存するの、XSSにプレゼントしてるのと同じですよ。"
+- **Fix:** Always set `expiresIn` (short-lived: 15min for access tokens). Specify `algorithms` in verify to prevent alg:none attacks. Store tokens in httpOnly cookies, not localStorage. Use refresh token rotation.
+
+### Mass Assignment
+
+- **Severity:** error
+- **Detect:** Grep for ORM create/update calls receiving full request body. Patterns: `.create(req.body)`, `.update(req.body)`, `new Model(req.body)`, `Object.assign(model, req.body)`, Prisma `.create({ data: req.body })`.
+- **Deduction:** -10 points
+- **Roast (en):** "Passing `req.body` straight into your ORM. Any user can add `{ isAdmin: true }` to the request and promote themselves. That's not a feature — it's a self-service privilege escalation."
+  - **Roast (ja):** "`req.body`をそのままORMに渡してるの、リクエストに`isAdmin: true`入れるだけで誰でも管理者になれますよね。それって権限昇格のセルフサービスですよ。"
+- **Fix:** Explicitly allowlist fields. Use DTOs, pick/omit utilities, or schema validation (Zod, Joi) to extract only expected fields from request bodies. Never pass raw `req.body` to create/update calls.
+
+### Open Redirect
+
+- **Severity:** warning
+- **Detect:** Grep for redirect with user-controlled target. Patterns: `redirect(req.query`, `redirect(req.body`, `redirect(req.params`, `window.location\s*=\s*`, `location.replace(`. Flag when the redirect target comes from a query parameter or form input without validation.
+- **Deduction:** -4 points
+- **Roast (en):** "You redirect to whatever URL the user passes in the query string. Phishing attackers love this — your domain becomes their credibility laundering service."
+  - **Roast (ja):** "クエリパラメータのURLにそのままリダイレクトしてるの、フィッシング攻撃の踏み台に使われますよね。あなたのドメインが信頼度ロンダリングに利用されるんですよ。"
+- **Fix:** Validate redirect targets against an allowlist of trusted domains. Use relative paths where possible. Never redirect to user-supplied absolute URLs without validation.
+
+### Prototype Pollution
+
+- **Severity:** error
+- **Detect:** Grep for deep merge/assign with user input. Patterns: `_.merge(.*req\.`, `_.defaultsDeep(.*req\.`, `Object.assign(.*req\.body`, `deepMerge`. Also check for missing `__proto__` / `constructor` key sanitization on user-facing object merges.
+- **Deduction:** -10 points
+- **Roast (en):** "Deep-merging user input into objects. One `{\"__proto__\": {\"isAdmin\": true}}` and every object in your app gets admin powers. Prototype pollution is a runtime virus."
+  - **Roast (ja):** "ユーザー入力をdeep mergeしてるの、`__proto__`にisAdmin突っ込まれたら全オブジェクトが管理者になるんですけど。プロトタイプ汚染って聞いたことないですかね。"
+- **Fix:** Sanitize input keys to reject `__proto__`, `constructor`, `prototype`. Use `Object.create(null)` for dictionaries. Use `Map` instead of plain objects for user-supplied keys.
+
+### Path Traversal
+
+- **Severity:** critical
+- **Detect:** Grep for file system operations with user input. Patterns: `readFile(req.`, `readFile(.*\+.*req`, `createReadStream(req.`, `fs\.\w+(req\.(query|params|body))`, `path.join(.*req.`, `sendFile(req.`. Flag any file I/O where the path argument includes user-controlled data.
+- **Deduction:** -20 points
+- **Roast (en):** "You're building a file path from user input. `../../etc/passwd` says hi. Path traversal is the original hack — it was old when your framework was born."
+  - **Roast (ja):** "ファイルパスにユーザー入力使ってるの、`../../etc/passwd`って入れられたらサーバーの中身丸見えですよね。パストラバーサル、ハッキングの古典中の古典なんですけど。"
+- **Fix:** Use `path.resolve()` and verify the result starts with the expected base directory. Never concatenate user input into file paths. Use a mapping (ID to filename) instead of accepting filenames directly.
+
+### Insecure Cookie Configuration
+
+- **Severity:** warning
+- **Detect:** Grep for cookie configuration missing security flags. Patterns: `res.cookie(` without `httpOnly`, `secure`, or `sameSite` in the options object. Check session middleware config (express-session, cookie-session) for missing security flags. Also flag `Set-Cookie` headers without these attributes.
+- **Deduction:** -4 points
+- **Roast (en):** "Auth cookies without HttpOnly or Secure flags. Any XSS can steal them, and they transmit over plain HTTP. You basically put your session tokens on a billboard."
+  - **Roast (ja):** "認証Cookieに`HttpOnly`も`Secure`もついてないの、XSSで盗み放題だしHTTPで平文送信ですよね。セッショントークンを看板に貼り出してるのと同じですよ。"
+- **Fix:** Set `httpOnly: true` (prevents JS access), `secure: true` (HTTPS only), `sameSite: 'strict'` or `'lax'` (CSRF protection). For session cookies, also set appropriate `maxAge`.
+
+### Timing Attack on Secrets
+
+- **Severity:** warning
+- **Detect:** Grep for direct comparison of secrets with `===` or `==`. Patterns: `===.*secret`, `===.*token`, `===.*apiKey`, `===.*password`, comparison of `req.headers.authorization` or `req.headers['x-api-key']` using equality operators instead of `crypto.timingSafeEqual`.
+- **Deduction:** -4 points
+- **Roast (en):** "Comparing secrets with `===`. An attacker can measure response time differences to guess your token character by character. `crypto.timingSafeEqual` exists for exactly this reason."
+  - **Roast (ja):** "シークレットの比較に`===`使ってるの、レスポンス時間の差でトークンを1文字ずつ特定できるんですけど。`crypto.timingSafeEqual`っていう関数、存在するの知ってます？"
+- **Fix:** Use `crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b))` for comparing secrets, tokens, API keys, and signatures. Never use `===` or `==` for security-sensitive string comparisons.
+
+### Insecure Deserialization
+
+- **Severity:** error
+- **Detect:** Grep for `eval(`, `new Function(`, `vm.runInContext(`, `vm.runInNewContext(`, `unserialize(` with user input. Also flag `yaml.load` without safe schema option. Patterns: `eval\(`, `new Function\(`, `vm\.run`.
+- **Deduction:** -10 points
+- **Roast (en):** "`eval()` with user input. You've handed your server's soul to whoever sends a request. This is remote code execution as a service — for attackers."
+  - **Roast (ja):** "ユーザー入力を`eval()`に渡してるの、それって攻撃者にサーバーのシェルをプレゼントしてるのと同じですよね。なんだろう、`eval`使うのやめてもらっていいですか。"
+- **Fix:** Never use `eval()` or `new Function()` with user input. Use `JSON.parse()` with schema validation (Zod, Joi, ajv). For YAML, use safe load options. Consider a sandboxed environment if dynamic code execution is truly needed.
+
 ## Scoring
 
 Start at 100. Apply deductions per finding. Minimum 0. Multiply final score by weight 1.5x.
