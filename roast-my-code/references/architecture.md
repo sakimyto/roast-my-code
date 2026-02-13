@@ -16,7 +16,8 @@ Scan project structure, import graphs, and module boundaries to find architectur
 - **Severity:** error
 - **Detect:** Any single file exceeding 500 lines of code (excluding comments and blank lines)
 - **Deduction:** -10 points per file
-- **Roast:** "This file has more responsibilities than a Swiss Army knife. It wakes up, makes breakfast, does your taxes, AND deploys to prod."
+- **Roast (en):** "This file has more responsibilities than a startup CEO who also does customer support. It wakes up, makes breakfast, deploys to prod, and handles billing -- all before line 200."
+  - **Roast (ja):** "このファイル、責務多すぎませんか。朝起きて、朝食作って、デプロイして、請求処理もしてるんですよね。それって1ファイルじゃなくて1部署ですよね。"
 - **Fix:** Split by responsibility. Extract cohesive groups of functions into focused modules. If you can't name what the file does in 5 words, it's doing too much.
 
 ### Circular Dependencies
@@ -24,7 +25,8 @@ Scan project structure, import graphs, and module boundaries to find architectur
 - **Severity:** critical
 - **Detect:** Trace import/require chains. If module A imports B and B imports A (directly or transitively), flag it. Check for cycles of any length in the dependency graph.
 - **Deduction:** -20 points per cycle
-- **Roast:** "Congratulations, your modules are in a relationship. A needs B, B needs A... this is codependency, not code dependency."
+- **Roast (en):** "Module A imports B, B imports A. That's not architecture -- that's a codependent relationship. Someone call a therapist, or at least a mediator module."
+  - **Roast (ja):** "AがBをimportして、BがAをimportしてるの、それって設計じゃなくて共依存ですよね。どっちかが大人になって手を離してもらっていいですか。"
 - **Fix:** Break the cycle with dependency inversion. Extract the shared interface into a third module. One of them needs to let go.
 
 ### Deep Nesting
@@ -32,7 +34,8 @@ Scan project structure, import graphs, and module boundaries to find architectur
 - **Severity:** warning
 - **Detect:** More than 4 levels of indentation from control flow structures (if/for/while/switch/try). Count nesting depth by braces or indentation level.
 - **Deduction:** -4 points per occurrence
-- **Roast:** "This nesting goes deeper than a Christopher Nolan movie. We need to go deeper... actually no, we really don't."
+- **Roast (en):** "This nesting is deeper than a Christopher Nolan plot. Four levels of if-else-for-while -- at some point you're not writing code, you're spelunking."
+  - **Roast (ja):** "ネストが深すぎて洞窟探検みたいになってるんですけど、4階層もif-for-while重ねて、ご自身で読めるんですか、これ。"
 - **Fix:** Use early returns, guard clauses, and extract helper functions. Flatten the pyramid of doom.
 
 ### Mixed Concerns
@@ -40,7 +43,8 @@ Scan project structure, import graphs, and module boundaries to find architectur
 - **Severity:** error
 - **Detect:** Business logic functions that also perform I/O (file reads, HTTP calls, database queries). UI components that fetch data directly. Look for fetch/axios/fs/sql inside pure logic functions.
 - **Deduction:** -10 points per violation
-- **Roast:** "This function calculates prices AND calls the database AND sends emails. It's not a function, it's a whole department."
+- **Roast (en):** "This function calculates prices, queries the database, AND sends emails. It's not a function -- it's an entire department that somehow fits in 40 lines of code."
+  - **Roast (ja):** "この関数、価格計算して、DB叩いて、メールも送ってるんですけど、それって関数じゃなくて部署ですよね。単一責任の原則って聞いたことあります？"
 - **Fix:** Separate pure logic from side effects. Business rules should take data in and return data out. Let the caller handle I/O.
 
 ### No Clear Entry Point
@@ -48,7 +52,8 @@ Scan project structure, import graphs, and module boundaries to find architectur
 - **Severity:** warning
 - **Detect:** Missing conventional entry point file pattern: no main.*, index.*, app.*, or equivalent. No obvious "start here" file in the project root or src directory.
 - **Deduction:** -4 points
-- **Roast:** "Where does this app even start? I've been wandering this codebase for 20 minutes like it's an IKEA with no exit signs."
+- **Roast (en):** "Where does this app even start? I've been wandering this codebase for 20 minutes like it's an IKEA with no exit signs and the meatballs are a lie."
+  - **Roast (ja):** "このアプリ、どこから起動するんですか。20分探してるんですけど見つからないの、出口のないIKEAを彷徨ってる気分なんですよね。"
 - **Fix:** Establish a clear entry point. Use conventional names (main, index, app) and document the startup path.
 
 ### Barrel File Explosion
@@ -56,7 +61,8 @@ Scan project structure, import graphs, and module boundaries to find architectur
 - **Severity:** warning
 - **Detect:** index.ts/index.js files that re-export everything from a directory. Especially dangerous when barrels re-export from other barrels, creating chains of hidden coupling.
 - **Deduction:** -4 points per barrel chain
-- **Roast:** "Your index.ts re-exports 47 things. It's not an index, it's a phone book. And half the entries are unlisted."
+- **Roast (en):** "Your index.ts re-exports 47 things. That's not a barrel file -- that's a phone book, and half the entries are for people who moved away three versions ago."
+  - **Roast (ja):** "index.tsが47個もre-exportしてるんですけど、それってバレルファイルじゃなくて電話帳ですよね。半分はもう使われてないんじゃないですか。"
 - **Fix:** Import directly from source modules instead of through barrels. Keep barrel files thin or remove them entirely. Your bundler will thank you.
 
 ### Global Mutable State
@@ -64,7 +70,8 @@ Scan project structure, import graphs, and module boundaries to find architectur
 - **Severity:** error
 - **Detect:** Module-level `let` or `var` declarations that get reassigned. Singleton patterns with mutable internal state. Global variables. Shared mutable caches without clear ownership.
 - **Deduction:** -10 points per instance
-- **Roast:** "Global mutable state? Bold strategy. Nothing says 'impossible to debug' like a variable that anyone, anywhere, can change at any time."
+- **Roast (en):** "Global mutable state -- a variable that anyone, anywhere, anytime can change for any reason. Debugging this is less 'investigation' and more 'seance'."
+  - **Roast (ja):** "グローバルなmutableステート置いてますけど、誰がいつ変更したか追えないの、デバッグじゃなくて降霊術ですよね。DIって知ってます？"
 - **Fix:** Use dependency injection. Pass state explicitly. If you need shared state, use a proper state management pattern with controlled access.
 
 ### Tight Coupling
@@ -72,7 +79,8 @@ Scan project structure, import graphs, and module boundaries to find architectur
 - **Severity:** error
 - **Detect:** Classes or functions that directly instantiate their dependencies with `new` instead of receiving them. Hardcoded references to concrete implementations rather than interfaces or abstractions.
 - **Deduction:** -10 points per violation
-- **Roast:** "Your service `new`s up its own database connection. That's not dependency management, that's a hostage situation."
+- **Roast (en):** "Your service `new`s up its own database connection inside itself. That's not dependency injection -- that's a hostage situation with no negotiator."
+  - **Roast (ja):** "サービスの中で直接`new`してDB接続作ってるの、それって依存性注入じゃなくて人質事件ですよね。テスト書けないのは仕様じゃなくて設計ミスですよ。"
 - **Fix:** Accept dependencies as constructor or function parameters. Depend on abstractions, not concretions. Make it possible to swap implementations without rewriting the consumer.
 
 ### Layer Violations
@@ -80,7 +88,8 @@ Scan project structure, import graphs, and module boundaries to find architectur
 - **Severity:** error
 - **Detect:** UI/presentation layer importing directly from database/persistence layer, skipping the service/business layer. API route handlers containing raw SQL. Components importing ORM models.
 - **Deduction:** -10 points per violation
-- **Roast:** "Your React component imports a Prisma model directly. The architecture diagram said 3 layers but the code said 'nah, shortcut.'"
+- **Roast (en):** "Your React component imports a Prisma model directly. The three-layer architecture diagram on your wiki was aspirational fiction, apparently."
+  - **Roast (ja):** "ReactコンポーネントからPrismaモデルを直接importしてるの、Wikiに貼ってある3層アーキテクチャの図、あれフィクションだったんですね。"
 - **Fix:** Enforce layer boundaries. UI talks to services, services talk to repositories. No skipping layers. Draw the boundary and respect it.
 
 ### Monolithic Modules
@@ -88,7 +97,8 @@ Scan project structure, import graphs, and module boundaries to find architectur
 - **Severity:** warning
 - **Detect:** Single module or directory handling all application logic with no separation. Everything lives in one folder. No clear boundaries between features, domains, or technical concerns.
 - **Deduction:** -4 points per monolith
-- **Roast:** "One folder, 30 files, zero boundaries. This isn't a module, it's a storage unit that someone gave up organizing."
+- **Roast (en):** "One folder. Thirty files. Zero boundaries. This isn't a module -- it's a storage unit that someone gave up organizing in 2022 and never came back."
+  - **Roast (ja):** "1フォルダに30ファイルで境界ゼロって、それってモジュールじゃなくてトランクルームですよね。2022年に整理を諦めたんですか。"
 - **Fix:** Decompose by domain or feature. Group related files together and draw clear boundaries. Even a simple src/auth, src/users, src/orders split is a massive improvement.
 
 ### Config Scattered
@@ -96,7 +106,8 @@ Scan project structure, import graphs, and module boundaries to find architectur
 - **Severity:** info
 - **Detect:** Configuration values (URLs, ports, API keys, feature flags, magic numbers) hardcoded across multiple source files instead of centralized in config/env files.
 - **Deduction:** -1 point per scattered config
-- **Roast:** "I found your API URL hardcoded in 7 different files. Updating it in prod should be a fun game of whack-a-mole."
+- **Roast (en):** "I found your API URL hardcoded in 7 different files. Changing it in prod is going to be a delightful game of whack-a-mole where every mole bites back."
+  - **Roast (ja):** "API URLが7ファイルにハードコードされてるんですけど、本番で変更するときモグラ叩きになりますよね。環境変数って概念、ご存知ですか。"
 - **Fix:** Centralize configuration. Use environment variables, a config module, or a .env file. One source of truth, referenced everywhere.
 
 ---

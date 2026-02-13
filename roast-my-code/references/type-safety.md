@@ -13,7 +13,8 @@ Active when TypeScript files (`*.ts`, `*.tsx`) are detected, or when JSDoc type 
   Exclude `node_modules`, test files, and declaration files (`*.d.ts`).
   Count total occurrences across the project.
 - **Deduction:** -10 points
-- **Roast:** "Using `any` is TypeScript's way of saying 'I give up'. And you used it {n} times."
+- **Roast (en):** "`any` is TypeScript's safe word, and you've used it {n} times. At this point just use JavaScript — at least that's honest about not having types."
+  - **Roast (ja):** "なんだろう、`any`を{n}回も使うなら最初からJavaScript書いてもらっていいですか。それってTypeScript使ってる意味ないですよね。"
 - **Fix:** Replace with specific types, `unknown` for truly dynamic values, or generics
   where the type varies but should be tracked. Use `unknown` and narrow with type guards.
 
@@ -24,7 +25,8 @@ Active when TypeScript files (`*.ts`, `*.tsx`) are detected, or when JSDoc type 
   assertions. For non-null assertions, match patterns like `\w+!\.` or `\w+!\[` to avoid
   false positives with logical NOT. Flag when the combined total exceeds 5 per file.
 - **Deduction:** -4 points
-- **Roast:** "Every `as` cast is a pinky promise to the compiler. You've made {n} promises you can't keep."
+- **Roast (en):** "Every `as` cast is a pinky promise to the compiler. You've made {n} promises you definitely can't keep."
+  - **Roast (ja):** "それって`as`でコンパイラに嘘ついてるだけですよね。{n}回も嘘ついたら普通に信用なくしますよ。"
 - **Fix:** Use type guards (`if ('prop' in obj)`), narrowing via control flow, or refactor
   data flow so TypeScript can infer the correct type without manual assertions.
 
@@ -36,7 +38,8 @@ Active when TypeScript files (`*.ts`, `*.tsx`) are detected, or when JSDoc type 
   return type annotations (`: ReturnType` between the closing paren and the opening brace
   or arrow). Flag those without.
 - **Deduction:** -4 points
-- **Roast:** "Your exported functions return... something. It's a surprise every time. Very exciting, very bad."
+- **Roast (en):** "Your exported functions return... surprise! Every call is a mystery box. Your coworkers love mystery boxes, right?"
+  - **Roast (ja):** "なんだろう、exportした関数の戻り値がガチャなのやめてもらっていいですか。呼ぶ側は毎回ドキドキしたくないんですよ。"
 - **Fix:** Add explicit return type annotations to all exported functions. This catches
   accidental return type changes and improves IDE performance on large projects.
 
@@ -47,7 +50,8 @@ Active when TypeScript files (`*.ts`, `*.tsx`) are detected, or when JSDoc type 
   `"noImplicitAny": false` or confirm that `noImplicitAny` is absent when `strict` is also
   not enabled. Both conditions allow parameters and variables to silently receive `any`.
 - **Deduction:** -10 points
-- **Roast:** "You turned off noImplicitAny. That's like disabling your smoke alarm because it beeps."
+- **Roast (en):** "`noImplicitAny` is off. That's like disabling your smoke alarm because you don't like the beeping sound."
+  - **Roast (ja):** "それって火災報知器がうるさいから電池抜くのと同じですよね。`noImplicitAny`をオフにするのは自由ですけど、火事になっても知らないですよ。"
 - **Fix:** Set `"noImplicitAny": true` in tsconfig (or enable `"strict": true` which
   includes it). Fix resulting errors by adding proper type annotations.
 
@@ -57,7 +61,8 @@ Active when TypeScript files (`*.ts`, `*.tsx`) are detected, or when JSDoc type 
 - **Detect:** Use Grep to find `@ts-ignore` and `@ts-expect-error` comments in source files.
   Count total occurrences. Exclude declaration files and generated code.
 - **Deduction:** -4 points
-- **Roast:** "Every @ts-ignore is a tiny surrender flag. You've planted {n} of them across your codebase."
+- **Roast (en):** "Every `@ts-ignore` is a tiny white flag of surrender. You've planted {n} of them. This codebase is a battlefield and you're losing."
+  - **Roast (ja):** "`@ts-ignore`が{n}個あるんですけど、それって型エラーと向き合うのを諦めた回数ですよね。降参するの早くないですか。"
 - **Fix:** Fix the underlying type error. If suppression is truly necessary, prefer
   `@ts-expect-error` (which fails when the error is resolved) with a comment explaining why.
 
@@ -69,7 +74,8 @@ Active when TypeScript files (`*.ts`, `*.tsx`) are detected, or when JSDoc type 
   `strictNullChecks`, `strictFunctionTypes`, `strictBindCallApply`,
   `strictPropertyInitialization`.
 - **Deduction:** -10 points
-- **Roast:** "Your tsconfig strict mode is off. You're using TypeScript as a fancy linter."
+- **Roast (en):** "`strict: false` — you're using TypeScript with the training wheels on, the bumpers up, and the safety net deployed. Why even bother?"
+  - **Roast (ja):** "なんだろう、`strict: false`でTypeScript書くのって補助輪つけたままツール・ド・フランス出るようなものですよね。出る意味あります？"
 - **Fix:** Set `"strict": true` in tsconfig and address type errors incrementally. This
   single flag enables null checks, bind/call/apply typing, and property initialization.
 
@@ -81,7 +87,8 @@ Active when TypeScript files (`*.ts`, `*.tsx`) are detected, or when JSDoc type 
   property is typed — look for generic type parameters (e.g., `axios.get<UserResponse>`)
   or type annotations on the receiving variable. Flag any untyped API call results.
 - **Deduction:** -4 points
-- **Roast:** "You're trusting API responses like a stranger's luggage at the airport. Validate and type your data."
+- **Roast (en):** "You're trusting API responses like unverified luggage at an airport. That `data` could be anything. Literally anything. Validate it."
+  - **Roast (ja):** "APIのレスポンスをノーチェックで信用してるんですけど、それって知らない人から受け取った荷物をそのまま開けるのと同じですよね。中身確認しましょうよ。"
 - **Fix:** Define response types or interfaces matching the API contract. Use runtime
   validation (Zod, io-ts, Valibot) with TypeScript generics for compile-time and runtime safety.
 
@@ -92,7 +99,8 @@ Active when TypeScript files (`*.ts`, `*.tsx`) are detected, or when JSDoc type 
   (pattern: `= ["']`). Flag especially small enums with 2-4 members where a string literal
   union type would be simpler and provide equivalent or better type narrowing.
 - **Deduction:** -1 point
-- **Roast:** "A string enum for two values? That's like renting a moving truck for a backpack."
+- **Roast (en):** "A string enum for two values. That's like renting a U-Haul to move a backpack."
+  - **Roast (ja):** "2個しか値がないのにenumって、それってコンビニ行くのに引越しトラック出すようなものですよね。ユニオン型で十分ですよ。"
 - **Fix:** Consider string literal union types (`type Status = 'active' | 'inactive'`) for
   simple cases. Use discriminated unions for complex cases. Union types tree-shake better.
 
@@ -103,7 +111,8 @@ Active when TypeScript files (`*.ts`, `*.tsx`) are detected, or when JSDoc type 
   as a type annotation. Pattern: `:\s*(Object|Function|\{\})\b` in source files. These
   top-level types accept almost anything and provide no meaningful type safety.
 - **Deduction:** -10 points
-- **Roast:** "The type `Object` tells us exactly nothing. Might as well use `\u00af\\_(ツ)_/\u00af`."
+- **Roast (en):** "The type `Object` communicates exactly nothing. You might as well annotate it as `: vibes`."
+  - **Roast (ja):** "なんだろう、型が`Object`って何も伝わらないんですよ。`: なんか` って書いてるのと同じですよね。"
 - **Fix:** Replace `Object` with `Record<string, unknown>`, `Function` with a specific
   signature like `(arg: string) => void`, and `{}` with `Record<string, never>` or a proper interface.
 
@@ -115,7 +124,8 @@ Active when TypeScript files (`*.ts`, `*.tsx`) are detected, or when JSDoc type 
   of mutation operations: `.push()`, `.splice()`, `.pop()`, `.shift()`, bracket assignment,
   or property reassignment. Flag candidates that could benefit from `readonly` or `as const`.
 - **Deduction:** -1 point
-- **Roast:** "This data never changes but nothing stops it from changing. `readonly` exists — use it."
+- **Roast (en):** "This data never changes but nothing stops it from changing. `readonly` is right there. It's literally one word."
+  - **Roast (ja):** "このデータ一回も変更してないのに`readonly`つけないの、鍵かけずに家出るのと同じですよね。つけるだけでいいのに。"
 - **Fix:** Use `readonly` modifier for array types (`readonly string[]`), `Readonly<T>` for
   objects, or `as const` for literal values. Prevents accidental mutations at compile time.
 
@@ -127,7 +137,8 @@ Active when TypeScript files (`*.ts`, `*.tsx`) are detected, or when JSDoc type 
   constraint but is accessed with `.` operator, indexed (`[key]`), or passed to a typed
   function — indicating an implicit shape assumption that should be explicit.
 - **Deduction:** -4 points
-- **Roast:** "Your generic `<T>` accepts literally anything — a string, a number, a cat. Add some constraints before it gets weird."
+- **Roast (en):** "Your generic `<T>` accepts literally anything — a string, a number, a cat, a promise of a cat. Constraints exist for a reason."
+  - **Roast (ja):** "この`<T>`、文字列でも数値でも猫でも何でも入るんですけど、それって玄関のドアを全開にして『誰でもどうぞ』って言ってるのと同じですよね。`extends`つけましょうよ。"
 - **Fix:** Add `extends` constraints: `<T extends Record<string, unknown>>`,
   `<T extends BaseEntity>`, or `<T extends { id: string }>`. Documents intent and catches misuse.
 
