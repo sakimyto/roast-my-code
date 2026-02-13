@@ -118,39 +118,87 @@ Determine which checkers to run based on detection results:
 | Frontend | `references/frontend.md` | HAS_FRONTEND_FRAMEWORK |
 | Git Hygiene | `references/git-hygiene.md` | HAS_GIT |
 
-Also read `references/roast-style.md` to load the persona for the selected LEVEL.
+### Step 4: Execute Checks (2-Phase)
 
-### Step 4: Execute Each Checker
+Uses a compact index for fast detection, then reads full reference files
+only for categories with findings.
 
-For each active checker:
+#### Phase 1: Quick Scan
 
-1. Read the checker's reference file from the `references/` directory.
-2. For each check item in the file, use the detection method described:
-   - Use **Grep** to search for patterns in source files.
-   - Use **Glob** to find files matching patterns.
-   - Use **Bash** for line counts, git log analysis, or file size checks.
-3. Record each finding with:
-   - `category`: checker name
-   - `check`: check item name
-   - `severity`: critical / error / warning / info
-   - `location`: file path and line number(s)
-   - `evidence`: the actual code/pattern found
-   - `deduction`: point deduction value
+1. **Read** `references/checks-index.md` (single file — all 162 check
+   patterns in one place).
+
+2. **Batch Grep execution** — combine patterns per category x severity:
+   - For each active checker category, combine all Grep patterns at the
+     same severity level using `|` (OR) into a single Grep call.
+   - Example: Security Grep [critical] has 6 patterns — combine into
+     1 Grep call with patterns joined by `|`.
+   - This reduces ~100+ individual Greps to ~20-30 batched calls.
+   - **Presence (P)**: pattern found = potential finding. Map matched
+     lines back to the specific check by inspecting which sub-pattern
+     matched.
+   - **Absence (A)**: run a separate Grep per absence check. Zero
+     results = finding.
+
+3. **Glob checks** — run all Glob patterns from the index in parallel.
+
+4. **Bash checks** — run Bash commands from the index in parallel where
+   independent. Group related commands together.
+
+5. **Map results** — for each match, identify the specific check name
+   from the index. Record:
+   - Which categories have findings (= need Phase 2 detail)
+   - Which categories are clean (= Strengths, skip in Phase 2)
+   - Approximate severity distribution per category
+
+**Phase 1 rules:**
+
+- Skip `node_modules/`, `dist/`, `build/`, `.next/`, `vendor/`,
+  `target/`, `.git/` directories.
+- Sample up to 20 files per category for tractability.
+- For large projects, prioritize: `src/` > `lib/` > `app/` > others.
+
+**Phase 1 target: ~20-30 Grep + 10-15 Glob/Bash calls total.**
+
+#### Phase 2: Detailed Roast
+
+1. **Read** `references/roast-style.md` to load the roast persona for
+   the selected LEVEL.
+
+2. **For each category WITH findings** from Phase 1:
+   a. Read the category's full reference file (e.g.,
+      `references/security.md`).
+   b. For each finding detected in Phase 1, extract from the reference:
+      - Roast line (en and ja — select based on OUTPUT_LANG)
+      - Fix description
+      - Exact deduction value
+   c. Refine findings: verify context around matches, discard false
+      positives from batch grep, deepen analysis where needed.
+   d. Record each confirmed finding with:
+      - `category`: checker name
+      - `check`: check item name
+      - `severity`: critical / error / warning / info
+      - `location`: file path and line number(s)
+      - `evidence`: the actual code/pattern found
+      - `deduction`: point deduction value
+
+3. **For categories with zero findings**: do NOT read the reference
+   file. Add the category to Strengths in the final output.
 
 **Important rules:**
 
 - Only report findings backed by actual evidence found in the code.
-- Do NOT invent findings for entertainment. Every roast must be grounded in fact.
-- **Deduplication:** If the same issue appears in multiple checkers (e.g.,
-  CORS in Security and API Design, Error Boundaries in Error Handling and
-  Frontend), count the deduction in only ONE category — whichever is more
-  specific. Note the cross-reference in the other category without deducting.
-- Sample up to 20 files per checker to keep analysis tractable.
-- For large projects, prioritize: src/ > lib/ > app/ > other directories.
-- Skip node_modules/, dist/, build/, .next/, vendor/, target/ directories.
+- Do NOT invent findings for entertainment. Every roast must be
+  grounded in fact.
+- **Deduplication:** If the same issue appears in multiple checkers
+  (e.g., CORS in Security and API Design, Error Boundaries in Error
+  Handling and Frontend), count the deduction in only ONE category —
+  whichever is more specific. Note the cross-reference in the other
+  category without deducting.
+- Per-check cap: max **3 findings** per check type count toward the
+  score. Additional instances are reported but do not deduct further.
 - **Parallelism:** Run Grep and Glob calls for independent checks in
-  parallel where possible. Group related checks per reference file and
-  batch tool calls to minimize round-trips.
+  parallel where possible. Batch tool calls to minimize round-trips.
 
 ### Step 5: Calculate Scores
 
