@@ -2,7 +2,7 @@
 name: roast-my-code
 description: "Comprehensive code review in roast style. Analyzes security, architecture, complexity, TDD compliance, type safety, error handling, naming, dead code, performance, dependencies, API design, frontend quality, and git hygiene. Delivers findings as entertaining roasts with actionable fixes. Use /roast to review your codebase. Supports --level (gentle/spicy/savage/sensei)."
 user-invocable: true
-argument-hint: "[target-path] [--level=gentle|spicy|savage|sensei]"
+argument-hint: "[target-path] [--level=gentle|spicy|savage|sensei] [--diff] [--quick] [--lang=en|ja]"
 allowed-tools: Read, Glob, Grep, Bash
 ---
 
@@ -17,6 +17,9 @@ Roast the target codebase with devastating accuracy and actionable fixes.
 /roast src/                         # Review src/ directory
 /roast --level=savage               # Maximum roast intensity
 /roast src/ --level=sensei          # TDD-focused wisdom
+/roast --diff                       # Review staged changes only
+/roast --quick                      # Fast scan (top 3 checkers)
+/roast --lang=ja                    # Force output language
 ```
 
 ## Levels
@@ -40,9 +43,21 @@ Parse the user's input to extract:
 - `LEVEL`: one of gentle/spicy/savage/sensei (default: spicy)
 - `OUTPUT_LANG`: detect from the user's message language (en or ja).
   If the user wrote in Japanese, set to ja. Otherwise, set to en.
+  If `--lang=` is specified, use that value instead of auto-detection.
+- `DIFF_MODE`: boolean (default: false). If `--diff` is present, set to true.
+- `QUICK_MODE`: boolean (default: false). If `--quick` is present, set to true.
 
-If `--level=` is found anywhere in the argument string, extract its value.
+Extract `--level=`, `--lang=`, `--diff`, `--quick` from the argument string.
 Everything else is treated as the target path.
+
+**Diff mode:** When `DIFF_MODE` is true, run `git diff --cached --name-only`
+via Bash to get the list of staged files. Only analyze those files instead
+of the full project. If no files are staged, inform the user and exit.
+Project detection (Step 2) still runs normally to determine framework context.
+
+**Quick mode:** When `QUICK_MODE` is true, run only these 3 checkers:
+Security, Architecture, TDD. Skip all other checkers. Output includes a
+note that this was a quick scan.
 
 ### Step 2: Project Detection
 
@@ -133,6 +148,9 @@ For each active checker:
 - Sample up to 20 files per checker to keep analysis tractable.
 - For large projects, prioritize: src/ > lib/ > app/ > other directories.
 - Skip node_modules/, dist/, build/, .next/, vendor/, target/ directories.
+- **Parallelism:** Run Grep and Glob calls for independent checks in
+  parallel where possible. Group related checks per reference file and
+  batch tool calls to minimize round-trips.
 
 ### Step 5: Calculate Scores
 

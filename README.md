@@ -1,5 +1,7 @@
 # 🔥 roast-my-code
 
+[日本語](README.ja.md)
+
 **Code reviews that hit different. Sharp feedback meets actual fixes.**
 
 A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill that delivers brutally honest code reviews as entertaining roasts — with actionable fixes. No API keys. No dependencies. Just markdown.
@@ -9,51 +11,73 @@ A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill that deliv
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   🔥 ROAST MY CODE — REPORT CARD 🔥
-  Level: spicy | Target: src/
+  Level: spicy | Target: ./
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📊 OVERALL: C (64/100)
+📊 OVERALL: B (74/100)
 
 ┌─────────────────────────────────────┐
 │ Category          Score    Grade    │
 ├─────────────────────────────────────┤
-│ Security          45/100     D     │
+│ Security          80/100     A     │
 │ Architecture      70/100     B     │
 │ Complexity        80/100     A     │
-│ TDD               30/100     F     │
-│ Error Handling    55/100     D     │
-│ Naming            85/100     A     │
-│ Dead Code         72/100     B     │
+│ TDD               60/100     C     │
+│ Type Safety       70/100     B     │
+│ Error Handling    60/100     C     │
+│ Naming            76/100     B     │
+│ Dead Code         76/100     B     │
 │ Performance       90/100     S     │
+│ Dependencies      90/100     S     │
+│ Frontend          76/100     B     │
+│ Git Hygiene       88/100     A     │
 └─────────────────────────────────────┘
 
 ━━━ 🔥 FINDINGS ━━━━━━━━━━━━━━━━━━━━━━
 
-## TDD (30/100)
+## TDD (60/100)
 
-### 🚨 No Test Files [critical]
-📍 src/
-> Zero test files found. Glob: **/*.test.* returned nothing.
+### 🚨 Low Test-to-Source Ratio [error]
+📍 apps/web/src/
+> 180 source files, 46 test files (26% ratio)
 
-💬 "I found your test suite. Just kidding — there isn't one."
+💬 "Your test coverage is giving 'I'll write tests later'
+    energy. Later never came."
 
-🔧 Fix: Create a __tests__/ directory and add unit tests
-   for core business logic. Start with the most critical
-   path: user authentication.
+🔧 Fix: Aim for at least 1 test file per source file
+   in critical paths. Start with business logic, then
+   work outward to API handlers and utilities.
 
 ---
 
-## Security (45/100)
+## Error Handling (60/100)
 
-### 🚨 Hardcoded API Key [critical]
-📍 src/config/api.ts:12
-> const API_KEY = "sk-live-abc123..."
+### 🚨 Empty Catch Blocks [critical]
+📍 src/lib/api-client.ts:42
+> } catch (e) {}
 
-💬 "You hardcoded an API key. In 2026. I'm not even angry,
-    I'm impressed by the audacity."
+💬 "Ah yes, catch and ignore — the ostrich pattern.
+    If you can't see the error, it doesn't exist."
 
-🔧 Fix: Move to environment variables. Use dotenv for local
-   dev and your platform's secret manager for production.
+🔧 Fix: At minimum, log the error. Better: rethrow
+   with context or handle the specific failure case.
+
+━━━ 📋 SUMMARY ━━━━━━━━━━━━━━━━━━━━━━━
+
+🏆 Top 3 Strengths:
+  1. Performance — no N+1 queries, async I/O used
+  2. Dependencies — clean lockfile, no wildcards
+  3. Git Hygiene — meaningful commits, .gitignore ok
+
+💀 Top 3 Priorities to Fix:
+  1. Empty catch blocks (src/lib/api-client.ts)
+  2. Test coverage for business logic (apps/web/)
+  3. Explicit `any` in 8 type declarations
+
+📈 Quick Wins (< 5 min each):
+  - Add `strict: true` to tsconfig.json
+  - Replace console.log with structured logger
+  - Remove 3 unused imports in src/utils/
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   Roasted with ❤️ by roast-my-code
@@ -95,6 +119,18 @@ In Claude Code, inside your project:
 
 That's it.
 
+## Usage
+
+```bash
+/roast                              # Review cwd at spicy level
+/roast src/                         # Review specific directory
+/roast --level=savage               # Maximum roast intensity
+/roast src/ --level=sensei          # TDD-focused wisdom
+/roast --diff                       # Review staged changes only
+/roast --quick                      # Fast scan (top 3 checkers)
+/roast --lang=ja                    # Force Japanese output
+```
+
 ## Roast Levels
 
 | Level | Tone | Example |
@@ -104,12 +140,9 @@ That's it.
 | `savage` | Brutally honest senior | "I've seen cleaner code in a PHP tutorial from 2008." |
 | `sensei` | TDD master (t_wada style) | "Red, Green, Refactor — you appear to have skipped all three." |
 
-```bash
-/roast --level=savage        # Maximum entertainment
-/roast src/ --level=sensei   # TDD-focused wisdom
-```
-
 ## What It Checks
+
+13 categories, 140+ individual check items:
 
 | Category | Checks | Weight |
 |----------|--------|--------|
@@ -129,7 +162,20 @@ That's it.
 
 *\*TDD weight increases to 1.5x in sensei mode*
 
-Conditional checkers (API Design, Frontend, Git Hygiene) activate only when the relevant framework or tool is detected.
+Conditional checkers (API Design, Frontend, Git Hygiene, Dependencies) activate only when the relevant framework or tool is detected.
+
+## Bilingual Output
+
+roast-my-code automatically detects your language and adapts its output:
+
+- **English**: Tech Twitter-viral dry humor
+- **Japanese (日本語)**: ひろゆき style deadpan sarcasm — 「なんだろう、テストないのやめてもらっていいですか」
+
+Use `--lang=ja` or `--lang=en` to override auto-detection.
+
+## Language Support
+
+Check definitions are optimized for **JavaScript / TypeScript** projects. Many checks (Security, Architecture, Complexity, TDD, Naming, Dead Code, Git Hygiene) work across any language. Framework-specific checks (Dependencies, Frontend, API Design) are currently Node.js ecosystem focused.
 
 ## Grading Scale
 
